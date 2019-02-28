@@ -7,15 +7,15 @@
 
 # Site settings
 title: junwu152106
-brief-intro: Coder, Life is Short, Use Python!
+brief-intro: The body in the dark, the heart to the light!
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://junwu152106.github.io" # the base hostname & protocol for your site
 
 permalink: /:year/:month/:day/:title/
 
 # other links
-twitter_username: junwu152106
-facebook_username: junwu152106
+# twitter_username: junwu152106
+# facebook_username: junwu152106
 github_username:  junwu152106
 email: junwu152106@gmail.com
 # weibo_username: 
