@@ -1,0 +1,359 @@
+---
+layout: post
+title:  "docker"
+date:  2019-02-28 11:40:18 
+categories: 总结
+tags: blog docker markdown
+author: liujunwu
+mathjax: true
+---
+## docker
+
+> 建立docker组： sudo grouped docker
+>
+> 将当前用户加入docker组  sudo usermod -aG docker  $USER
+
+1. 测试是否安装正确
+
+   1. docker run hello-world
+
+2. 查看当前版本
+
+   > docker --version
+
+   如果正常的话，可以尝试一下运行nginx
+
+   > docker run -d -p 80:80 --name weserver nginx
+
+   此时访问 localhost:80  会出现 welcome Nginx!
+
+3. 获取镜像
+
+   1. docker pull 镜像名字：版本     （如ubuntu:16.04）不加版本号则默认为最新的latest的镜像
+
+   2. docker run  -it   --rm ubuntu:16.04 bash     此时为运行以ubuntu镜像启动一个容器
+
+      root@a0079cadsfaf:/       表示已经进入到容器里面。a0079..表示该容器的id编号，可以进行操作
+
+      > -it  其中 i 表示交互式操作，t表示终端
+      >
+      > --rm 表示容器退出后，会立即删除，一般情况下不会使用
+      >
+      > bash 表示希望有个交互式的shell ,所以添加上
+
+4. 使用  exit  退出容器
+
+5. 查看已下载的所有镜像
+
+   > docker image ls  【ubuntu:16.04】如果有后面的ubuntu的参数，则会列出仓库为ubuntu的 全部镜像
+   >
+   > ​	带上版本号后，会指定为该版本号的镜像
+   >
+   > 会列出： 仓库名、标签、镜像ID 、创建时间、所占空间
+
+6. 将容器保存为镜像
+
+   > docker commit  --author  'zhangsan' --message ' 修改了***' webserver nginx:v2
+   >
+   > --author 'zhangsan' 指定作者zhangsan  --message ‘修改了**’ 添加修改了的描述信息
+   >
+   > webserver 指 容器名字 ， nginx:v2  则表示镜像与版本编号
+   >
+   > 慎用 docker commit  !!!
+
+7. 删除镜像
+
+   > docker image rm 镜像id （Id只需要三四位能区分开就可以了）
+
+8. 操作容器
+
+   1. 新建并启动
+
+      > docker run 镜像名字 ***
+
+      > docker run -it ubuntu:16.04  /bin/bash
+      >
+      > root@a0079cadsfaf:/ # 
+      >
+      > 启动一个bash终端，允许用户进行交互，此时可以输入 Linux命令，如pwd/ls/等
+
+      利用docker run 创建容器时，Docker 在后台的标准操作有：
+
+      * 检查本地是否存在制定的镜像，不存在则从公有仓库下载
+      * 利用镜像创建并启动一个容器
+      * 分配一个文件系统，并在只读的镜像层外面挂在一层可读写层
+      * 从宿主主机配置的网桥接口中桥接一个虚拟接口到容器去
+      * 从地址配置一个IP地址给容器
+      * 执行用户指定的应用程序
+      * 执行完后容器被终止
+
+   2. 启动以终止的容器
+
+      > docker [container] start    [镜像ID或names]
+
+   3. 后台运行
+
+      > 添加   -d   参数
+
+      例如：运行 docker run ubuntu:16.04 /bin/sg -c "while true; do echo hello world;sleep 1; done" 不
+
+      加 -d 参数，则会一直输出在当前的下面。(注意：命令里面全部是 ;  true 后面不是冒号)
+
+      添加 -d 参数后，会在后台运行，会返回一个唯一的id,获取容器的输出信息可使用：
+
+      > docker [container] logs   [镜像ID或names]
+
+   4. 终止容器
+
+      > docker [container] stop [镜像ID或names]
+      >
+      > 对于上一章只启动了一个终端的容器，可通过exit 或ctrl +d 来退出
+
+      查看所有终止状态的容器 docker container ls -a 
+
+      docker container restart [镜像ID或names]           会讲一个运行态的容器终止重新启动
+
+   5. 进入容器
+
+      >  docker attach  镜像ID或者names      
+      >
+      > //直接进入到容器内，变为交互式带有Linux命令行的提示符，不需要 -it  bash 参数
+
+      不推荐，因为这样进入后，退出exit时，会导致容器的停止。
+
+      > **docker exec -it  镜像ID或者names     bash**
+      >
+      > 加上 -it  才会有Linux的命令提示符
+      >
+      > bash 表示希望有个交互式的shell ,所以添加上
+
+      推荐使用** exec** 这样退出时，容器不会停止。
+
+   6. 导出与导入容器
+
+      > docker export  [镜像ID或names]  > my-ubuntu.tar  导出容器
+      >
+      > **docker import 从容器快找文件再导入为镜像** 
+      >
+      > cat my-ubuntu.tar | docker import  -  test/my-ubuntu:v1.0  导入容器，变为镜像
+      >
+      > docker image ls:
+      >
+      > ​	名字 test/my-ubuntu   版本v1.0
+
+      也可以使用docker load 来导入镜像存储文件到本地镜像库
+
+      > 可以指定URL或者某个目录来导入
+      >
+      > Docker import http://example.com/exampleimage.tgz  examp/imagetest
+
+      两者的区别
+
+      容器快找文件将丢弃所有的历史记录与原数据信息，只保留最后的状态。而今修改能够存储文件，将保存完整记录，体积也较大。从容器快照文件导入可以重新 制定标签等愿数据信息。
+
+   7. 删除容器
+
+      删除终止状态的容器
+
+      > docker [container] rm  镜像ID或names      
+
+      如需删除一个运行中的容器，可添加 -f 参数，
+
+      **删除所有处于终止状态的容器**
+
+      > **docker container prune**
+
+9. 访问仓库
+
+   1. 查找镜像
+
+      > docker search centos 
+      >
+      > docker search 来查找 官方仓库中的镜像
+
+      再利用 **docker pull** 镜像名。将其下载到本地
+
+   2. 创建私人仓库
+
+      需要使用docker账号，密码等，此处不介绍
+
+10. 数据管理
+
+  1. 推荐使用 --mount，以前是 -v
+
+    -v 本地路径：/容器内路径
+
+    --mount  type=bind, source= 本地路径，target= 容器内路径 ,[readonly 默认读写，加上这个变为只读]
+
+  2. 数据卷
+
+    创建一个数据卷 docker volume create my-vol 
+
+    查看所有数据卷 docker volume ls 
+
+    **启动一个挂载数据卷的容器 docker run --name  test --mount type=bind, source=my-vol(数据卷名字或者本地路径),target=/data/py3/   镜像名字  。。**
+
+    **启动一个挂载数据的容器 docker run  -it --name  test  -v   /本机路径下/data：/data/py3/  镜像名 /bin/bash。**    									
+
+    上面2种方式均可
+
+    这样便把本机下的data文件夹，相当于链接到了容器的/data/py3/下了。并不是直接复制进去的，而是链接进去的，在容器内更改里面的文件话，外部也会变。
+
+11. 使用dockerfile定制镜像
+
+   1. From 指定基础镜像**必须有**
+
+      所谓定制镜像是指以一个镜像为基础，在此基础上进行定制。基础镜像必须指定，有很多官方镜像，如：nginx、redis、mongo、mysql、等，也有方便开发、构建运行各种语言的镜像如：node、openjdk、python、ruby、golang等；也有ubuntu、debian、centos、fedora等。还有一个虚拟镜像名为scratch，是一个空白镜像，go语言的常用这种方式来制作镜像。
+
+   2. run 执行命令 **必须有**
+
+      run 指令是用来执行命令行命令的，后面一般用**&&**链接 多个命令
+
+      > RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple  keras==2.1.6 tensorflow==1.8.0 && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
+
+      上面的引用，指定了安装源为清华源，安装多个包，并指定了时区，时区为上海，必须带着后面的时区。
+
+      ```python
+      run  ...  && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
+      ```
+
+   3. 构建镜像  **重要**
+
+      > docker build -t  镜像名字:标签  [-f  当前路径]	.   
+
+      **最后那个点必须有，表示当前目录**，可以写上  -f  /../Dcokerfile   来指定当前的Dockerfile文件路径
+
+      也可以给出项目的git地址，或者压缩包来构建。
+
+      > docker build https://github.com/zhangsan/gitlab-test.git #:8.14   g构建目录为/8.14/
+      >
+      > docker build http://server/context.tar.gz  会自动下载解压缩，开始构建
+
+   4. Dockerfile指令详解
+
+      上面有了from、run、现在讲其余的几个 **可选**
+
+      1. copy复制文件
+
+         格式1: copy  原路径文件  目标路径      例如：copy   /data/*.py    /data2/	data2 位容器内的文件夹位置，最
+
+         后在容器内运行时，需要注意变更的文件位置。
+
+         格式2：copy ["源路径1"，.... "目标路径"]
+
+      2. add 更高级的复制文件
+
+         add   mutest.tar.gz   /data/  可以把压缩文件自动解压到目标路径下去。适用场合就是需要自动解压的场合
+
+         **一般推荐copy！**
+
+      3. **cmd 容器启动命令**
+
+         cmd  命令    例如：cmd  python  aaa.py
+
+         格式2: cmd ["可执行文件"，“参数1”，“参数2”...]
+
+         Docker 不是虚拟机，容器就是进程，所以在启动容器时需要指定运行的程序及参数，cmd是指定启动命令的
+
+         **也可以在构建容器时，在后面跟上启动命令：docker run ……镜像名字  python aaa.py**
+
+      4. enterpoint 入口点（不太容易解释，自己看pdf:dockerpractice）
+
+         与cmd命令向对应吧，如版本1中以cmd为启动命令创建好了镜像mytest1,以此为基础，运行docker run mytest1 ,即可得到所需的结果，但是如果想在显示结果这在添加一个参数 如-i，显示更详细时，运行命令docker run mytest1 -i，这种情况下，cmd 就会出错，**如果把dockerfile里的cmd更换为 enterpoint就不会报错了**。可理解为在运行容器时添加的参数也会传入到基础镜像的内部cmd处去。
+
+      5. env 设置环境变量
+
+         格式1: env  <key>  <value>  
+
+         格式2: env  <key1>=<value1> <key2>=<value2> <key3>=<value3>
+
+         指令很简单，就是设置环境变量，后面的其他命令如 run,还是运行时的应用，都可以使用此处的环境变量。例如：
+
+         > ENV  version=1.0 debug=on name='zhangsan'	
+
+      6. arg  构建参数
+
+         格式 ：ARG <参数名>[=<默认值>]   
+
+         作用和env效果一样，都是设置环境变量，但是arg所设置的环境变量，在将来容器运行时是不会存在的。
+
+      7.  Volume 定义匿名卷
+
+         volume  /data  这的/data就是匿名卷，任何写入的数据都不会进到容器内，但是在docker run -v mydata:/data 这种情况下，会覆盖掉这个匿名卷。 
+
+      8. expose 声明端口
+
+         格式：expose <端口1> [<端口2>...] 
+
+         作用 帮使用者理解镜像服务的守护端口，方便配置映射；另一个是在运行时使用随机端口映射，也就是在docker run -p 时，会自动随机映射expose的端口。
+
+      9. workdir  指定工作目录
+
+         workdir <工作目录路径>
+
+      10. 其余命令
+
+          user 指定当前用户 ：user <用户名>
+
+          Healthcheck 健康检查 ： healthchec [参数] cmd <命令>   
+
+          ​	该指令是告诉docker应该如何判断容器的状态是否异常，如：程序进入死循环状态，进程并未退出，但是该容器已经无法提供服务了。
+
+          ​		healthcheck --interval=5s--timeout=3s cmd …此处设置了没5秒检查一次，如果命令超过3秒没响应，就视为失败。
+
+          onbulid 为他人做嫁衣： onbuild <其他指令> 		
+
+          是一个特殊指令（是为了别人定制自己而准备的），后面跟的是其他指令，比如run，copy等，这些指令在当前镜像构建时并不会被执行，只有以当前镜像为基础镜像，再次构建下一级镜像时才会被执行。
+
+12.链接容器
+
+​	1.外部访问容器，容器中可以运行一些网络应用，要让外部也可以访问这些应用，可以通过 -p 或者 **-p 端口号**来进行端口映射
+
+> 只有一个 -p 例如docker run -d -p 镜像名 python app.py  可以用docker ps ,查看当前运行的容器，会显示出映射的端口号是多少，在外部访问这个端口就能，访问到容器里面的内容了.(未找到实例，没测，很少用)
+>
+> **一般都会指定端口，即使用   -p 外部端口：内部端口**
+
+> -p可以多次使用来绑定多个端口，docker run -d -p 5000:5000 -p 3000:80 镜像名 python app.py
+
+ 2. 容器互联
+
+    1.  之前是使用--link来链接容器
+
+       第一步：
+
+       > docker run -d -v /路径/Simnews.sql:/sql_file/Simnews.sql   -e MYSQL_ROOT_PASSWORD=123  --name mysql  mysql
+
+        以mysql镜像为基础，创建一个名为mysql的容器（docker exec -it 4d9  /bin/bash  进入到容器，mysql -uroot -p 123 进入数据库，create database simnews charset=utf8;创建数据库;进入sql_file下，mysql -uroot -p sinews <Simnews.sql把sql文件加载到数据库中）
+
+       **以mysql镜像构建的容器必须带有：-e MYSQL_ROOT_PASSWORD=123  即指定root权限密码**
+
+       第二步：docker run -it -v /路径/Simnews:/Simnews --link mysql:mysql -p 5000:5000 python:2.7.14 /bin/bash 
+
+       以python2.7为基础创建一个容器，--link 把第一步的mysql链接过来，-p 映射外部访问端口 flask默认的是5000，需要把flask内数据库连接更改一下
+
+        SQLALCHEMY_DATABASE_URI = 'mysql://**root:123@mysql:3306/simnews**'
+
+       root密码改为123，mysql:3306 这需要理解一下是指定到mysql容器的3306端口，里面的simnews数据库
+
+    2. 现在推荐自定义docker网络
+
+       1. 新建一个docker网络
+
+          > Docker network create -d bridge my-net
+
+          -d 参数指定Docker网络类型，有bridge、 overlay，其中overlay适用于Swarm mode,
+
+       2. 创建2个容器并加入到my-net网络里
+
+          > docker run -it --name con1  **--network my-net**  镜像名字 sh
+          >
+          > docker run -it --name con2  **--network my-net** 镜像名字 sh 
+
+          在con1容器中输入 ping con2 能显示ping通。。反之也可以
+
+13 .向已有的容器内拷贝文件进去
+
+    > docker cp  本地文件路径  容器名字:/路径名字
+
+14 .待补充。
+
