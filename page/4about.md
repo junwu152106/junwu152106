@@ -15,9 +15,9 @@ type: page
 
 ## 联系我
 
-* GitHub：[suliveevil](https://github.com/suliveevil)
+* GitHub：[junwu152106](https://github.com/junwu152106)
 * email：suliveevil@gmail.com
-* 知乎：[suliveevil](https://www.zhihu.com/people/suliveevil)
+
 
 ## 关于本站
 
@@ -26,7 +26,7 @@ type: page
 
 ## 友情链接
 
-[SWY0503 Blog](https://swy0503.github.io) \| [HyG](https://gaohaoyang.github.io)
+[LJW Blog](https://junwu152106.github.io) \| [HyG](https://gaohaoyang.github.io)
 
 
 
