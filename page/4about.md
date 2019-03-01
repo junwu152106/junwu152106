@@ -16,7 +16,7 @@ type: page
 ## 联系我
 
 * GitHub：[junwu152106](https://github.com/junwu152106)
-* email：suliveevil@gmail.com
+* email：1079232553@qq.com
 
 
 ## 关于本站
@@ -26,7 +26,7 @@ type: page
 
 ## 友情链接
 
-[LJW Blog](https://junwu152106.github.io) \| [HyG](https://gaohaoyang.github.io)
+[LJW Blog](https://junwu152106.github.io) \| [百度](http://baidu.com)
 
 
 
