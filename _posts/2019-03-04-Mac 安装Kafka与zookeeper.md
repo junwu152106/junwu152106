@@ -67,7 +67,7 @@ topic = 'my'
 	        a = dict()
 	        a['name'] = 'zhangsan'
 	        a['age'] = n
-	        producer.send(topic, json.dumps(a).encode('utf-8'))
+	        producer.send(topic, json.dumps(a).encode('utf-8')) #注意发送的数据是byte字节类型的数据 
 	        print("send" + str(n))
 	        n += 1
 	        time.sleep(0.001)  # 必须要有这个，否则报错
